@@ -9,7 +9,7 @@ public class CreateAccountViewModel {
 
 	public CreateAccountViewModel(CreateAccount createAccount) {
 		this.createAccount = createAccount;
-//		this.accountRepo = new AccountRepository(this);
+		this.accountRepo = new AccountRepository(this);
 
 	}
 

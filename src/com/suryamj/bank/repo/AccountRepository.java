@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import com.suryamj.bank.admin.AdminViewModel;
 import com.suryamj.bank.createaccount.CreateAccountViewModel;
+import com.suryamj.bank.customer.CustomerViewModel;
 import com.suryamj.bank.dto.Customers;
 
 public class AccountRepository extends DbConnection {
@@ -13,6 +14,8 @@ public class AccountRepository extends DbConnection {
 	PreparedStatement pst = null;
 	ResultSet rs = null;
 	AdminViewModel adminViewModel;
+	CreateAccountViewModel createAccountViewModel;
+	CustomerViewModel customerViewModel;
 
 //	AccountManagement accountManagement;
 	public AccountRepository(AdminViewModel adminViewModel2) {
@@ -21,7 +24,12 @@ public class AccountRepository extends DbConnection {
 	}
 
 	public AccountRepository(CreateAccountViewModel createAccountViewModel) {
-		
+		this.createAccountViewModel = createAccountViewModel;
+
+	}
+
+	public AccountRepository(CustomerViewModel customerViewModel) {
+		this.customerViewModel = customerViewModel;
 	}
 
 	public void insertData(Customers bankcustomer) {
@@ -125,24 +133,25 @@ public class AccountRepository extends DbConnection {
 		}
 		return false;
 	}
+
 	public boolean toRemoveUserAccount(int delete, int userId) {
 		try {
 			con = getConnect();
 			String str;
-			if(delete==1) {
-				
-				str ="delete from transactionsdetails where customerid = "+userId;
+			if (delete == 1) {
+
+				str = "delete from transactionsdetails where customerid = " + userId;
 				pst = con.prepareStatement(str);
 				int x = pst.executeUpdate();
-				if(x==0) {
-					x=1;
+				if (x == 0) {
+					x = 1;
 				}
 				if (x == 1) {
-					str ="delete from accountdetails where customerid = "+userId;
+					str = "delete from accountdetails where customerid = " + userId;
 					pst = con.prepareStatement(str);
 					x = pst.executeUpdate();
 					if (x == 1) {
-						str ="delete from customerdetails where customerid = "+userId;
+						str = "delete from customerdetails where customerid = " + userId;
 						pst = con.prepareStatement(str);
 						x = pst.executeUpdate();
 						if (x == 1) {
@@ -151,17 +160,17 @@ public class AccountRepository extends DbConnection {
 						}
 					}
 				}
-			}else {
+			} else {
 				System.out.println("\nDeletion Cancelled\n");
 				return true;
 			}
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
 		return false;
 	}
-	public boolean toSearch(String info, int val, String table) {
+
+	public ResultSet toSearch(String info, int val, String table) {
 		if (val == 1) {
 			info = " name = " + "'" + info + "'";
 		} else {
@@ -170,16 +179,107 @@ public class AccountRepository extends DbConnection {
 		try {
 //			accountManagement = new AccountManagement();
 			con = getConnect();
-			String str = "select * from "+table+" where " + info;
+			String str = "select * from " + table + " where " + info;
 			pst = con.prepareStatement(str);
 			rs = pst.executeQuery();
 			if (table.equals("customerdetails")) {
-				adminViewModel.customerPersionalDeatails(rs);
-			}else {
-				adminViewModel.customerAccountDetails(rs);
+//				adminViewModel.customerPersionalDeatails(rs);
+				return rs;
+			} else {
+//				adminViewModel.customerAccountDetails(rs);
+				return rs;
 			}
 		} catch (Exception e) {
-			return false;
+			System.out.println();
+			return null;
+		}
+
+	}
+
+	public boolean toChangeAdminPassWord(String aId, String pW) {
+		try {
+			con = getConnect();
+			String str = "UPDATE adminlogin SET adminpassword = " + "'" + pW + "'" + " WHERE adminid = " + aId;
+			pst = con.prepareStatement(str);
+			int x = pst.executeUpdate();
+			if (x == 1) {
+				System.out.println("\nUpdate Completed\n");
+				return true;
+			} else {
+				System.out.println("\nNot Updated...\n");
+				return false;
+			}
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return true;
+	}
+
+	public void userTransactionsDetails(String userId) {
+		try {
+			System.out.println(userId + "get");
+			pst = con.prepareStatement(userId);
+			rs = pst.executeQuery();
+			System.out.println();
+			customerViewModel.customerTransactionDetails(rs);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+	}
+
+	public boolean toUpdateTransactionTable(String customerId, String transactionType, long transactionAmount) {
+		try {
+			con = getConnect();
+			String dateOfTransaction = "" + java.time.LocalDate.now();
+			String str = "insert into transactionsdetails(customerid, dateoftransaction, transactiontype, transactionamount) "
+					+ "Values(" + "'" + customerId + "', " + "'" + dateOfTransaction + "', " + "'" + transactionType
+					+ "', " + "'" + transactionAmount + "'" + ")";
+			pst = con.prepareStatement(str);
+			int x = pst.executeUpdate();
+			if (x == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return true;
+	}
+
+	public boolean withDrawAmount(String userId, long amount) {
+		try {
+			con = getConnect();
+			String str = "select accountbalance from accountdetails where customerid=" + userId;
+			pst = con.prepareStatement(str);
+			rs = pst.executeQuery();
+			rs.next();
+			String accountBalance = rs.getString("accountbalance");
+
+			if (100000 > Integer.parseInt(accountBalance)) {
+				if (amount < Integer.parseInt(accountBalance)) {
+					System.out.println("Your WithDrawn Amount is : " + amount);
+					long amount1 = Long.parseLong(accountBalance) - amount;
+					str = "update accountdetails set accountbalance = " + amount1 + " where customerid=" + userId;
+					pst = con.prepareStatement(str);
+					int x = pst.executeUpdate();
+					if (x == 1) {
+						if (toUpdateTransactionTable(userId, "WithDrawn", amount)) {
+							System.out.println("Your Balance Amount is : " + amount1);
+							return false;
+						} else {
+							System.out.println("\ntransaction Details Error...\n");
+							return true;
+						}
+					}
+				} else {
+					System.out.println("\nYour WithDrawn Amount is must be less than Available Balance...\n");
+					return true;
+				}
+			} else {
+				return true;
+			}
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
 		}
 		return true;
 	}

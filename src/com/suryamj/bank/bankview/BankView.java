@@ -3,23 +3,25 @@ package com.suryamj.bank.bankview;
 import com.suryamj.bank.dto.Account;
 
 import java.util.Map;
-import java.util.Map.Entry;
+
 import java.util.Scanner;
 
 import com.suryamj.bank.admin.AdminView;
-import com.suryamj.bank.bankviewmodel.BankViewModel;
 import com.suryamj.bank.createaccount.CreateAccount;
+import com.suryamj.bank.customer.CustomerView;
 
 public class BankView {
-	BankViewModel viewModel;
+//	BankViewModel viewModel;
 	Map<Integer, Account> account;
 	Scanner scan = new Scanner(System.in);
 	CreateAccount createAccount;
 	AdminView adminView;
+	CustomerView customerView;
 
 	public BankView() {
 		this.createAccount = new CreateAccount(this);
 		this.adminView = new AdminView(this);
+		this.customerView = new CustomerView(this);
 
 	}
 
@@ -40,6 +42,9 @@ public class BankView {
 				int options = scan.nextInt();
 				if (options == 1) {
 					adminView.showMenu();
+
+				} else if (options == 2) {
+					customerView.showMenu();
 
 				}
 //				break;

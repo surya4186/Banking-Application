@@ -24,8 +24,8 @@ public class AdminView {
 		if (adminViewModel.adminlogin(adminId, adminPassWord)) {
 			boolean admin = true;
 			while (admin) {
-				System.out.println("\nEnter Your choice :\n1.View All User Details \n2.Remove User Account"
-						+ "\n3.Search User Details \n4.Change Admin Password \n5.LogOut");
+				System.out.println(
+						"\nEnter Your choice :\n1.View All User Details \n2.Remove User Account \n3.Change Admin Password \n4.LogOut");
 				byte adminControl = 0;
 				try {
 					System.out.println("Enter your choice : ");
@@ -53,25 +53,27 @@ public class AdminView {
 						}
 					}
 					break;
-//				case 3:
-//					accountManagement.toSearchUserDetails("admin");
-//					break;
-//				case 4:
-//					boolean changePassword = true;
-//					while (changePassword) {
-//						System.out.println("\nEnter New PassWord : ");
-//						String newPassWord = scan.next();
-//						System.out.println("\nConfirm New PassWord : ");
-//						String confirmPassWord = scan.next();
-//						if (account.isValidPassWord(confirmPassWord) && newPassWord.equals(confirmPassWord)) {
-//							accountProcess.toChangeAdminPassWord(adminId, confirmPassWord);
-//							changePassword = false;
-//						} else {
-//							System.out.println("Enter Valid PassWord...");
-//						}
-//					}
-//					break;
-				case 5:
+				case 3:
+					boolean changePassword = true;
+					while (changePassword) {
+						System.out.println("\nEnter New PassWord : ");
+						String newPassWord = scan.next();
+						System.out.println("\nConfirm New PassWord : ");
+						String confirmPassWord = scan.next();
+						if (newPassWord.equals(confirmPassWord)) {
+							if (adminViewModel.toChangeAdminPassWord(adminId, confirmPassWord)) {
+								System.out.println("PassWord change Successfully");
+
+							} else {
+								System.out.println("PassWord Not change");
+							}
+							changePassword = false;
+						} else {
+							System.out.println("Enter Valid PassWord...");
+						}
+					}
+					break;
+				case 4:
 					admin = false;
 					break;
 				default:

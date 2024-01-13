@@ -40,7 +40,7 @@ public class AdminViewModel {
 		}
 	}
 
-	public void customerPersionalDeatails(ResultSet rs) {
+	public boolean customerPersionalDeatails(ResultSet rs) {
 		try {
 			while (rs.next()) {
 				System.out.println("\n***********************USER INFO***********************\n");
@@ -57,10 +57,12 @@ public class AdminViewModel {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
-	public void customerAccountDetails(ResultSet rs) {
+	public boolean customerAccountDetails(ResultSet rs) {
 		try {
 			while (rs.next()) {
 				System.out.println("\n***********************ACCOUNT INFO***********************\n");
@@ -70,10 +72,14 @@ public class AdminViewModel {
 				System.out.println("Account Balance  : " + rs.getString("accountbalance"));
 				System.out.println("Account Status   : " + rs.getString("accountstatus"));
 				System.out.println("\n***********************ACCOUNT INFO***********************\n");
+
 			}
 		} catch (SQLException e) {
+
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 
 	}
 
@@ -112,7 +118,7 @@ public class AdminViewModel {
 				scan.nextLine();
 				System.out.println("\nEnter Name to Search : ");
 				String name = scan.nextLine();
-				if (accountRepo.toSearch(name, search, "customerdetails")) {
+				if (customerAccountDetails(accountRepo.toSearch(name, search, "customerdetails"))) {
 					continueSearch = false;
 				} else {
 					System.out.println("Name Not Found...");
@@ -124,7 +130,7 @@ public class AdminViewModel {
 				System.out.println("\nEnter Customer ID to Search : ");
 				customerId = scan.nextLine();
 
-				if (accountRepo.toSearch(customerId, search, "customerdetails")) {
+				if (customerAccountDetails(accountRepo.toSearch(customerId, search, "customerdetails"))) {
 					continueSearch = false;
 				} else {
 					System.out.println("Customer ID Not Found...");
@@ -138,6 +144,16 @@ public class AdminViewModel {
 				System.out.println("\nEnter valid number...\n");
 			}
 		}
+	}
+
+	public boolean isValidPassWord(String password) {
+		return password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,12}$");
+	}
+
+	public boolean toChangeAdminPassWord(String adminId, String confirmPassWord) {
+		System.out.println(adminId + " " + confirmPassWord);
+		return accountRepo.toChangeAdminPassWord(adminId, confirmPassWord);
+
 	}
 
 }

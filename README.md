@@ -11,6 +11,12 @@ This application allows users to create accounts, manage accounts as an admin or
 - **Create Account:** Users can create new accounts by providing essential details.
 - **Manage Account:** Admins and customers can perform account-related operations.
 - **Exit:** Exit the application.
+  
+## Planning
+- Project Duration: 31 days
+- Type: Console Application
+- Language: Java
+- Contributor: 1
 
 ## Project Structure
 
